@@ -24,13 +24,13 @@ RQ_QUEUES = {}
 
 SENTRY_DSN = get_env(
     'SENTRY_DSN',
-    'https://044f6ac4baa8491f8955a7e6bd5f7f7b@o227124.ingest.sentry.io/5820521'
+    'https://53c30651d61840c1a7cbdba138fabeed@o1041015.ingest.sentry.io/6010991'
 )
 SENTRY_ENVIRONMENT = get_env('SENTRY_ENVIRONMENT', 'opensource')
 
 FRONTEND_SENTRY_DSN = get_env(
     'FRONTEND_SENTRY_DSN',
-    'https://5f51920ff82a4675a495870244869c6b@o227124.ingest.sentry.io/5838868')
+    'https://71c213547cc7427f865b585ca7e36ff9@o1041015.ingest.sentry.io/6010995')
 FRONTEND_SENTRY_ENVIRONMENT = get_env('FRONTEND_SENTRY_ENVIRONMENT', 'opensource')
 
 from label_studio import __version__
