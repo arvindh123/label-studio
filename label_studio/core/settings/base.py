@@ -45,7 +45,7 @@ if HOSTNAME:
 INTERNAL_PORT = '8080'
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '$(fefwefwef13;LFK{P!)@#*!)kdsjfWF2l+i5e3t(8a1n'
+SECRET_KEY = 'zLLZloTuFX0bjlY1tCSMRLAumPi4Wg4c4WkvoUZ/lMAbg2JwEiuFBkxrZQIeNdvE+MT2+dt4K+NFo0iYPbBQ8WHlm+Mp+a+UCO7Fs4UIg5oSkZqzgj+26Qo1usfRuWN1tfgk+Q7n6+GVq2SnkxgvViiTqU24SCHUS0sV5CCSNBqV5T53eWKstabVWR6foO78+BN9l401RjQT7H13jW0Cnm57JVXHaHBLG77IunSSkjlO/tvn+Ch9vt7ga/F07RIVHaE5r4tV2LTA69GD8Limu/LlSOMGhYLFDWrMLWvXlpDRSptEN/3J8EgizLywtQ5+/eOXXzVvJfm8c7x0lZHjJkVe/TxVLN7rtzuf2yD6kOjqGDfrX9ByUu9lM7oNmrgJN6Tzx3LM7d5ssVnUG7lwA5hs4kaMG/h2z/uKDNplzlhGdholwOQLaNcQ3M0lHZxagreoYc1WQ2JhhcXIlBZLexkhSBk/SxNFB8f5Ykal9AigHt3Qyzy5+UZkLTJvc1aZvAajtEY6yZRupEmMjcgGbvnNRGv9caw9yQ5g6SsPPU/yeSPFuP8HlBMp8TcSXdbSwnakGtgjKjSVPkoybEwOb3N6ZeejaVdxc77+XtrO53yA+rEvZ5BVv5tLYGcy0afcDmPI/hrHDjkFZSrnmdVzIHMKxCmDBCB8zbXn9x3Kfz8='
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = get_bool_env('DEBUG', True)
@@ -62,11 +62,15 @@ logger.info('=> Database and media directory: %s', BASE_DATA_DIR)
 
 # Databases
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
+DJANGO_DB_PROD_GCP_PGSQL = 'prod_gcp_pgsql'
+DJANGO_DB_DEV_GCP_PGSQL = 'dev_gcp_pgsql'
 DJANGO_DB_MYSQL = 'mysql'
 DJANGO_DB_SQLITE = 'sqlite'
 DJANGO_DB = 'default'
 DATABASE_NAME_DEFAULT = os.path.join(BASE_DATA_DIR, 'label_studio.sqlite3')
+
 DATABASE_NAME = get_env('DATABASE_NAME', DATABASE_NAME_DEFAULT)
+
 DATABASES_ALL = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -75,6 +79,13 @@ DATABASES_ALL = {
         'NAME': get_env('POSTGRE_NAME', 'postgres'),
         'HOST': get_env('POSTGRE_HOST', 'localhost'),
         'PORT': int(get_env('POSTGRE_PORT', '5432')),
+    },
+    DJANGO_DB_PROD_GCP_PGSQL: {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': get_env('POSTGRE_NAME', ''),
+        'USER': get_env('POSTGRE_USER', ''),
+        'PASSWORD':get_env('POSTGRE_PASSWORD', ''),
+        'HOST': f'/cloudsql/{get_env("GCP_PGSQL_CONNECTION_NAME", "")}',
     },
     DJANGO_DB_MYSQL: {
         'ENGINE': 'django.db.backends.mysql',
@@ -325,18 +336,27 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
-STATIC_URL = '/static/'
-# if FORCE_SCRIPT_NAME:
-#    STATIC_URL = FORCE_SCRIPT_NAME + STATIC_URL
-logger.info(f'=> Static URL is set to: {STATIC_URL}')
+GCP_STATIC_STORAGE_BUCKET = get_env("GCP_STATIC_STORAGE_BUCKET", "")
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static_build')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder'
-)
-STATICFILES_STORAGE = 'core.storage.SkipMissedManifestStaticFilesStorage'
+if GCP_STATIC_STORAGE_BUCKET != "" :
+    GS_BUCKET_NAME = GCP_STATIC_STORAGE_BUCKET
+    STATIC_URL = "/static/"
+    DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+    STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+    GS_DEFAULT_ACL = "publicRead"
+else :
+    STATIC_URL = '/static/'
+    # if FORCE_SCRIPT_NAME:
+    #    STATIC_URL = FORCE_SCRIPT_NAME + STATIC_URL
+    logger.info(f'=> Static URL is set to: {STATIC_URL}')
+
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static_build')
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+    STATICFILES_FINDERS = (
+        'django.contrib.staticfiles.finders.FileSystemFinder',
+        'django.contrib.staticfiles.finders.AppDirectoriesFinder'
+    )
+    STATICFILES_STORAGE = 'core.storage.SkipMissedManifestStaticFilesStorage'
 
 # Sessions and CSRF
 SESSION_COOKIE_SECURE = bool(int(get_env('SESSION_COOKIE_SECURE', False)))
