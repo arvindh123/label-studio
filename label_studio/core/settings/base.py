@@ -340,7 +340,7 @@ GCP_STATIC_STORAGE_BUCKET = get_env("GCP_STATIC_STORAGE_BUCKET", "")
 
 if GCP_STATIC_STORAGE_BUCKET != "" :
     GS_BUCKET_NAME = GCP_STATIC_STORAGE_BUCKET
-    STATIC_URL = "/static/"
+    STATIC_URL = "http://storage.googleapis.com/"+GCP_STATIC_STORAGE_BUCKET+"/"
     DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
     STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
     GS_DEFAULT_ACL = "publicRead"
