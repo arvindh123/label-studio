@@ -1,7 +1,14 @@
 #!/bin/sh
 set -e ${DEBUG:+-x}
 
-if [ -n "${POSTGRE_HOST:-}" ]; then
+if [ -n "${GCP_PGSQL_CONNECTION_NAME:-}" ]; then
+  echo >&3 "=> Waiting for postgres..."
+  until PGPASSWORD=$POSTGRE_PASSWORD psql -h "/cloudsql/$POSTGRE_HOST"  -U "$POSTGRE_USER" -d "${POSTGRE_NAME:=root}" -c '\q'; do
+    echo >&3 "==> Postgres is unavailable - sleeping..."
+    sleep 1
+  done
+  echo >&3 "=> Postgres is up."
+elif [ -n "${POSTGRE_HOST:-}" ]; then
   echo >&3 "=> Waiting for postgres..."
   until PGPASSWORD=$POSTGRE_PASSWORD psql -h "$POSTGRE_HOST" -p $POSTGRE_PORT -U "$POSTGRE_USER" -d "${POSTGRE_NAME:=root}" -c '\q'; do
     echo >&3 "==> Postgres is unavailable - sleeping..."

@@ -85,7 +85,7 @@ DATABASES_ALL = {
         'NAME': get_env('POSTGRE_NAME', ''),
         'USER': get_env('POSTGRE_USER', ''),
         'PASSWORD':get_env('POSTGRE_PASSWORD', ''),
-        'HOST': f'/cloudsql/{get_env("GCP_PGSQL_CONNECTION_NAME", "")}',
+        'HOST': f'/cloudsql/{get_env("POSTGRE_HOST", "")}',
     },
     DJANGO_DB_MYSQL: {
         'ENGINE': 'django.db.backends.mysql',
