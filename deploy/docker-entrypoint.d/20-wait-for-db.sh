@@ -2,9 +2,9 @@
 set -e ${DEBUG:+-x}
 
 if [ -n "${GCP_PGSQL_CONNECTION_NAME:-}" ]; then
-  echo >&3 "=> Waiting for postgres..."
+  echo >&3 "=> Waiting for cloud sql postgres..."
   until PGPASSWORD=$POSTGRE_PASSWORD psql -h "/cloudsql/$POSTGRE_HOST"  -U "$POSTGRE_USER" -d "${POSTGRE_NAME:=root}" -c '\q'; do
-    echo >&3 "==> Postgres is unavailable - sleeping..."
+    echo >&3 "==> cloud sql  Postgres is unavailable - sleeping..."
     sleep 1
   done
   echo >&3 "=> Postgres is up."
